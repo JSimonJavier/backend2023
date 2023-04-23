@@ -1,0 +1,20 @@
+[
+  {
+    "title": "Botines",
+    "description": "Adidas SpeedPortal .3",
+    "price": 34000,
+    "thumbnail": "url",
+    "code": "adidas201",
+    "stock": 25,
+    "id": 1
+  },
+  {
+    "title": "Botines",
+    "description": "Nike Tiempo",
+    "price": 41000,
+    "thumbnail": "url",
+    "code": "nike301",
+    "stock": 15,
+    "id": 2
+  }
+]
