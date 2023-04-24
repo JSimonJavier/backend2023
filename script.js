@@ -9,7 +9,7 @@ class ProductManager {
   }
 
   //? agregando productos
-  addProduct = (title, description, price, thumbnail, code, stock) => {
+  addProduct = async (title, description, price, thumbnail, code, stock) => {
     if (!title && !description && !price && !thumbnail && !stock && !code) {
       console.error("Le falto agregar un dato del producto");
       return;
@@ -32,7 +32,7 @@ class ProductManager {
       id: ++this.id,
     });
 
-    fs.writeFileSync(this.path, JSON.stringify(this.products, null, 2));
+    await fs.promises.writeFile(this.path, JSON.stringify(this.products, null, 2));
     return this.products;
   };
 
@@ -71,7 +71,7 @@ class ProductManager {
       products.splice(index, 1, updatedProduct);
 
       const data = JSON.stringify(products, null, 2);
-      fs.writeFileSync(this.path, data);
+      await fs.promises.writeFile(this.path, data);
 
     } catch (err) {
       throw err;
@@ -89,7 +89,7 @@ class ProductManager {
 
       products.splice(index, 1);
       const data = JSON.stringify(products, null, 2);
-      fs.writeFileSync(this.path, data);
+      await fs.promises.writeFile(this.path, data);
     } catch (err) {
       console.log(err);
     }
