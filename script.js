@@ -6,65 +6,71 @@ class ProductManager {
     this.path = path;
     this.products = [];
     this.id = 0;
+    
   }
 
   //? agregando productos
-  addProduct = async (title, description, price, thumbnail, code, stock) => {
-    if (!title && !description && !price && !thumbnail && !stock && !code) {
-      console.error("Le falto agregar un dato del producto");
-      return;
-    }
+  addProduct = async(title, description, price, thumbnail, code, stock) => {
+      
+      if (!title && !description && !price && !thumbnail && !stock && !code) {
+        console.error("Le falto agregar un dato del producto");
+        return;
+      }
+  
+      const codes = this.products.map((product) => product.code);
+  
+      if (codes.includes(code)) {
+        console.error(`Codigo existente ${code}`);
+        return;
+      }
+  
+      this.products.push({
+        title,
+        description,
+        price,
+        thumbnail,
+        code,
+        stock,
+        id: ++this.id,
+      });
+  
+      await fs.promises.writeFile(this.path, JSON.stringify(this.products, null, 2));
+      return this.products;
 
-    const codes = this.products.map((product) => product.code);
-
-    if (codes.includes(code)) {
-      console.error(`Codigo existente ${code}`);
-      return;
-    }
-
-    this.products.push({
-      title,
-      description,
-      price,
-      thumbnail,
-      code,
-      stock,
-      id: ++this.id,
-    });
-
-    await fs.promises.writeFile(this.path, JSON.stringify(this.products, null, 2));
-    return this.products;
   };
 
   getProducts = async () => {
     try {
+      await fs.promises.writeFile(this.path, JSON.stringify(this.products, null, 2))
       let productString = await fs.promises.readFile(this.path, "utf-8");
+
       let products = JSON.parse(productString);
-      console.log(products);
+      
       return products;
     } catch (err) {
-      throw err;
+      console.log(err);;
     }
   };
 
   getProductsById = async (idProduct) => {
     try {
-      const products = await this.getProducts();
+      const productsString = await fs.promises.readFile(this.path, "utf-8");
+      const products = JSON.parse(productsString)
       const getId = products.find((product) => product.id === idProduct);
-      console.log(getId);
       return getId;
     } catch (error) {
-      throw error;
+      console.log(error);;
     }
   };
 
   updateProduct = async (id, update) => {
     try {
-      const products = await this.getProducts();
+      const productsString = await fs.promises.readFile(this.path, "utf-8");
+      const products = JSON.parse(productsString)
       const index = products.findIndex(product => product.id === id);
 
       if (index === -1) {
-        throw new error("No se encuentra el id: " + id);
+        throw new Error("No se encuentra el id: " + id);
       }
 
       const updatedProduct = { ...products[index], ...update };
@@ -72,26 +78,28 @@ class ProductManager {
 
       const data = JSON.stringify(products, null, 2);
       await fs.promises.writeFile(this.path, data);
+      
 
-    } catch (err) {
-      throw err;
+    } catch (error) {
+      console.log(error);;
     }
   };
 
   deleteProduct = async (id) => {
     try {
-      const products = await this.getProducts();
-      const index = products.findIndex((product) => product.id === id);
+      const productsString = await fs.promises.readFile(this.path, "utf-8");
+      const products = JSON.parse(productsString)
+      const index = await products.findIndex((product) => product.id === id);
 
       if (index === -1) {
-        throw new error("no se encuentra el id " + id);
+        throw new Error("no se encuentra el id " + id);
       }
 
-      products.splice(index, 1);
+      await products.splice(index, 1);
       const data = JSON.stringify(products, null, 2);
       await fs.promises.writeFile(this.path, data);
-    } catch (err) {
-      console.log(err);
+    } catch (error) {
+      console.log(error);
     }
   };
 }
@@ -114,8 +122,9 @@ productManager.addProduct(
   "nike301",
   15
 );
+
 productManager.addProduct(
-  "Botines",
+  "Zapatillas",
   "Puma future 3.4",
   31000,
   "url",
@@ -123,26 +132,29 @@ productManager.addProduct(
   10
 );
 
-const getAllProducts = productManager.getProducts()
+async function manejoDeArchivos(){
+  // getProducts 
+  await productManager.getProducts().then((productos)=>console.log(productos))
+  
+  // getProductByID
+  await productManager.getProductsById(1).then((byId)=>console.log(byId))
+  
+  //updatedProduct
+  await productManager.updateProduct(3, {
+    title: "Zapatillas",
+    description: "Puma clasic",
+    price: 41000,
+    thumbnail: "url",
+    code: "pumeas201",
+    stock: 30,
+  })
+  
+  //obtenemos el producto actualizado con getProductById
+  await productManager.getProductsById(2).then((byId)=>console.log(byId))
+  
+  //deleteProduct
+  await productManager.deleteProduct(1)
+}
 
-console.log(getAllProducts);
+manejoDeArchivos()
 
-const getProductID = productManager.getProductsById(1);
-
-console.log(getProductID);
-
-
-const updatedProduct = productManager.updateProduct(2, {
-  title: "Zapatillas",
-  description: "Puma clasic",
-  price: 41000,
-  thumbnail: "url",
-  code: "pumeas201",
-  stock: 30,
-});
-
-console.log(updatedProduct);
-
-const deleteProducto = productManager.deleteProduct(3);
-
-console.log(deleteProducto);
