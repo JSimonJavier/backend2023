@@ -6,36 +6,36 @@ class ProductManager {
     this.path = path;
     this.products = [];
     this.id = 0;
-    
+
   }
 
   //? agregando productos
-  addProduct = async(title, description, price, thumbnail, code, stock) => {
-      
-      if (!title && !description && !price && !thumbnail && !stock && !code) {
-        console.error("Le falto agregar un dato del producto");
-        return;
-      }
-  
-      const codes = this.products.map((product) => product.code);
-  
-      if (codes.includes(code)) {
-        console.error(`Codigo existente ${code}`);
-        return;
-      }
-  
-      this.products.push({
-        title,
-        description,
-        price,
-        thumbnail,
-        code,
-        stock,
-        id: ++this.id,
-      });
-  
-      await fs.promises.writeFile(this.path, JSON.stringify(this.products, null, 2));
-      return this.products;
+  addProduct = async (title, description, price, thumbnail, code, stock) => {
+
+    if (!title && !description && !price && !thumbnail && !stock && !code) {
+      console.error("Le falto agregar un dato del producto");
+      return;
+    }
+
+    const codes = this.products.map((product) => product.code);
+
+    if (codes.includes(code)) {
+      console.error(`Codigo existente ${code}`);
+      return;
+    }
+
+    this.products.push({
+      title,
+      description,
+      price,
+      thumbnail,
+      code,
+      stock,
+      id: ++this.id,
+    });
+
+    await fs.promises.writeFile(this.path, JSON.stringify(this.products, null, 2));
+    return this.products;
 
   };
 
@@ -45,7 +45,7 @@ class ProductManager {
       let productString = await fs.promises.readFile(this.path, "utf-8");
 
       let products = JSON.parse(productString);
-      
+
       return products;
     } catch (err) {
       console.log(err);;
@@ -78,7 +78,7 @@ class ProductManager {
 
       const data = JSON.stringify(products, null, 2);
       await fs.promises.writeFile(this.path, data);
-      
+
 
     } catch (error) {
       console.log(error);;
@@ -98,6 +98,7 @@ class ProductManager {
       await products.splice(index, 1);
       const data = JSON.stringify(products, null, 2);
       await fs.promises.writeFile(this.path, data);
+      return products
     } catch (error) {
       console.log(error);
     }
@@ -132,13 +133,15 @@ productManager.addProduct(
   10
 );
 
-async function manejoDeArchivos(){
+async function manejoDeArchivos() {
   // getProducts 
-  await productManager.getProducts().then((productos)=>console.log(productos))
-  
+  const allProducts = await productManager.getProducts()
+  console.log(allProducts);
+
   // getProductByID
-  await productManager.getProductsById(1).then((byId)=>console.log(byId))
-  
+  const productById = await productManager.getProductsById(1)
+  console.log(productById);
+
   //updatedProduct
   await productManager.updateProduct(3, {
     title: "Zapatillas",
@@ -148,12 +151,13 @@ async function manejoDeArchivos(){
     code: "pumeas201",
     stock: 30,
   })
-  
+
   //obtenemos el producto actualizado con getProductById
-  await productManager.getProductsById(2).then((byId)=>console.log(byId))
-  
-  //deleteProduct
-  await productManager.deleteProduct(1)
+  await productManager.getProductsById(2).then((byId) => console.log(byId))
+
+  //deleteProduct -> se borra el producto con id 1 y devuelve los otros productos
+  const deleteProduct = await productManager.deleteProduct(3)
+  console.log(deleteProduct);
 }
 
 manejoDeArchivos()
