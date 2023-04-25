@@ -152,10 +152,8 @@ async function manejoDeArchivos() {
     stock: 30,
   })
 
-  //obtenemos el producto actualizado con getProductById
-  await productManager.getProductsById(2).then((byId) => console.log(byId))
-
-  //deleteProduct -> se borra el producto con id 1 y devuelve los otros productos
+  
+  //deleteProduct -> se borra el producto con id 3 y devuelve los otros productos
   const deleteProduct = await productManager.deleteProduct(3)
   console.log(deleteProduct);
 }
